@@ -1,4 +1,5 @@
 def update_scores(players, caller_index, assaf_happened):
+    # I might redo this to make it a 2D array rather than 1D array, need to figure out what will be more efficient first
     caller = players[caller_index]
     opponent = players[1 - caller_index]
 
@@ -6,8 +7,9 @@ def update_scores(players, caller_index, assaf_happened):
     opponent_value = opponent.hand_value()
 
     if assaf_happened:
-        # Assaf penalty: the caller gets 20 points pls whatever is in hand, and opponent gets a win streak
+        # Assaf penalty: the caller gets 20 points plus whatever is in hand, and opponent gets a win streak
         caller.score += 20
+        caller.score += caller_value
         caller.wins_in_a_row = 0
         opponent.wins_in_a_row += 1
     else:
