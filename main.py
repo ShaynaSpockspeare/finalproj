@@ -40,7 +40,7 @@ def main():
         while True:
             current = players[turn % 2]
             opponent = players[(turn + 1) % 2]
-            last_discard_group = prev_discard_group  # Drawable pile comes from opponent's last move
+            last_discard_group = prev_discard_group[:]
 
             print(f"\n--- {current.name}'s Turn ---")
             print(f"Top of discard pile: {discard_pile[-1]}")
@@ -48,16 +48,14 @@ def main():
             if current == user:
                 print_hand(user)
 
-                if user.hand_value() <= 7:
+                user_value = user.hand_value()
+                if user_value <= 7:
                     call = input("Call Yaniv? (y/n): ").strip().lower()
                     if call == 'y':
-                        print(f"\n{user.name} called Yaniv with {user.hand_value()}!")
+                        print(f"\n{user.name} called Yaniv with {user_value}!")
                         print(f"Computer's hand: {', '.join(str(c) for c in computer.hand)} ({computer.hand_value()})")
-                        assaf = computer.hand_value() <= user.hand_value()
-                        if assaf:
-                            print("Assaf! You lose this round.")
-                        else:
-                            print("Yaniv successful!")
+                        assaf = computer.hand_value() <= user_value
+                        print("Assaf! You lose this round." if assaf else "Yaniv successful!")
                         update_scores(players, 0, assaf)
                         break
 
@@ -76,14 +74,15 @@ def main():
                     else:
                         print("Invalid indexes. Try again.")
 
-                user.remove_cards(move)
-                discard_pile.extend(move)
+                pending_discard = move[:]
+                user.remove_cards(pending_discard)
 
-                # Draw options (from opponent’s last discard group)
+                # Drawing logic happens before modifying discard_pile
                 if len(last_discard_group) == 1:
                     draw_input = input("Draw from (d)eck or (p)ile? ").strip().lower()
                     if draw_input == 'p':
-                        user.draw_card([discard_pile.pop()])
+                        user.draw_card([last_discard_group[-1]])
+                        discard_pile.remove(last_discard_group[-1])
                     else:
                         user.draw_card(deck.draw())
                 elif last_discard_group:
@@ -102,26 +101,15 @@ def main():
                 else:
                     user.draw_card(deck.draw())
 
-                # Update prev_discard_group AFTER user finishes full turn
-                prev_discard_group = move[:]
+                discard_pile.extend(pending_discard)
+                prev_discard_group = pending_discard[:]
 
             else:
                 move = get_computer_move(computer.hand)
-                computer.remove_cards(move)
-                discard_pile.extend(move)
+                pending_discard = move[:]
+                computer.remove_cards(pending_discard)
 
-                if computer.hand_value() <= 7:
-                    print(f"\nComputer called Yaniv with {computer.hand_value()}!")
-                    print_hand(user)
-                    assaf = user.hand_value() <= computer.hand_value()
-                    if assaf:
-                        print("Assaf! You win this round.")
-                    else:
-                        print("Yaniv successful. You lose.")
-                    update_scores(players, 1, assaf)
-                    break
-
-                # Computer draw options
+                # Draw logic before discarding
                 top = last_discard_group[-1] if last_discard_group else None
                 bottom = last_discard_group[0] if last_discard_group else None
                 deck_card = deck.draw()[0] if len(deck) > 0 else None
@@ -131,8 +119,17 @@ def main():
                     discard_pile.remove(best)
                 computer.draw_card([best])
 
-                # Update prev_discard_group AFTER computer finishes full turn
-                prev_discard_group = move[:]
+                discard_pile.extend(pending_discard)
+                prev_discard_group = pending_discard[:]
+
+                computer_value = computer.hand_value()
+                if computer_value <= 7:
+                    print(f"\nComputer called Yaniv with {computer_value}!")
+                    print_hand(user)
+                    assaf = user.hand_value() <= computer_value
+                    print("Assaf! You win this round." if assaf else "Yaniv successful. You lose.")
+                    update_scores(players, 1, assaf)
+                    break
 
             turn += 1
 
