@@ -11,10 +11,9 @@ def update_scores(players, caller_index, assaf_happened):
         caller.wins_in_a_row = 0
         opponent.wins_in_a_row += 1
     else:
-        # Yaniv success: Opponent gets their hand value, caller gains win streak
+        # Yaniv success: Opponent gains points, caller gains win streak
         opponent.score += opponent_value
         caller.wins_in_a_row += 1
-        opponent.wins_in_a_row = 0
 
     # Exact 50 rule: score resets to 0
     for player in players:

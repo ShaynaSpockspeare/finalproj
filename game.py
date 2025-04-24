@@ -51,23 +51,31 @@ def card_value_for_straight(card):
     return int(card.rank)
 
 
+from itertools import combinations
+
 def get_computer_move(hand):
-   # Returns the best possible move for the computer; it falls back to discarding the lowest-value card if there is no possible combo.
-    from itertools import combinations
-
     best_move = None
-    best_value = float('inf')
+    best_score = float('inf')
 
-    # Try all combinations of 1 to all cards in hand
     for n in range(1, len(hand)+1):
         for combo in combinations(hand, n):
-            # If the combo is a valid set or straight, calculate remaining hand value
             if is_valid_set(combo) or is_valid_straight(combo):
-                remaining = [card for card in hand if card not in combo]
-                val = sum(c.value() for c in remaining)
-                if val < best_value:
-                    best_move = combo
-                    best_value = val
+                remaining = [c for c in hand if c not in combo]
+                remaining_value = sum(c.value() for c in remaining)
+                cards_discarded = len(combo)
+                jokers_used = sum(1 for c in combo if c.is_joker)
 
-    # Return best combo found, or the lowest-value card if nothing else is good
-    return list(best_move) if best_move else [min(hand, key=lambda c: c.value())]
+                score = (
+                    remaining_value
+                    - 3 * cards_discarded   
+                    + 5 * jokers_used      
+                )
+
+                if score < best_score:
+                    best_score = score
+                    best_move = combo
+
+    if best_move:
+        return list(best_move)
+    else:
+        return [max(hand, key=lambda c: c.value())]
