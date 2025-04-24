@@ -14,6 +14,7 @@ def update_scores(players, caller_index, assaf_happened):
         # Yaniv success: Opponent gains points, caller gains win streak
         opponent.score += opponent_value
         caller.wins_in_a_row += 1
+        opponent.wins_in_a_row = 0  # <-- Fix: reset opponent's streak after they lose
 
     # Exact 50 rule: score resets to 0
     for player in players:
@@ -30,6 +31,3 @@ def update_scores(players, caller_index, assaf_happened):
         if player.wins_in_a_row == 3:
             player.score = max(0, player.score - 5)
             player.wins_in_a_row = 0
-
-
-
