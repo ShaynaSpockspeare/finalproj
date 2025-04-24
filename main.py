@@ -35,23 +35,23 @@ def main():
 
         discard_pile.extend(deck.draw(1))
         turn = 0
-        prev_discard_group = []  # track last discarded cards from previous turn
+        prev_discard_group = []
 
         while True:
             current = players[turn % 2]
             opponent = players[(turn + 1) % 2]
-            last_discard_group = prev_discard_group
+            last_discard_group = prev_discard_group  # Drawable pile comes from opponent's last move
 
             print(f"\n--- {current.name}'s Turn ---")
             print(f"Top of discard pile: {discard_pile[-1]}")
-            
+
             if current == user:
                 print_hand(user)
 
                 if user.hand_value() <= 7:
-                    choice = input("Call Yaniv? (y/n): ").strip().lower()
-                    if choice == 'y':
-                        print(f"\n{user.name} called Yaniv with value {user.hand_value()}!")
+                    call = input("Call Yaniv? (y/n): ").strip().lower()
+                    if call == 'y':
+                        print(f"\n{user.name} called Yaniv with {user.hand_value()}!")
                         print(f"Computer's hand: {', '.join(str(c) for c in computer.hand)} ({computer.hand_value()})")
                         assaf = computer.hand_value() <= user.hand_value()
                         if assaf:
@@ -78,9 +78,8 @@ def main():
 
                 user.remove_cards(move)
                 discard_pile.extend(move)
-                prev_discard_group = move[:]
 
-                # Drawing logic with safety check
+                # Draw options (from opponent’s last discard group)
                 if len(last_discard_group) == 1:
                     draw_input = input("Draw from (d)eck or (p)ile? ").strip().lower()
                     if draw_input == 'p':
@@ -103,14 +102,16 @@ def main():
                 else:
                     user.draw_card(deck.draw())
 
+                # Update prev_discard_group AFTER user finishes full turn
+                prev_discard_group = move[:]
+
             else:
                 move = get_computer_move(computer.hand)
                 computer.remove_cards(move)
                 discard_pile.extend(move)
-                prev_discard_group = move[:]
 
                 if computer.hand_value() <= 7:
-                    print(f"\nComputer called Yaniv with value {computer.hand_value()}!")
+                    print(f"\nComputer called Yaniv with {computer.hand_value()}!")
                     print_hand(user)
                     assaf = user.hand_value() <= computer.hand_value()
                     if assaf:
@@ -120,15 +121,18 @@ def main():
                     update_scores(players, 1, assaf)
                     break
 
-                top = last_discard_group[-1]
-                bottom = last_discard_group[0]
-                draw_options = [top, bottom, deck.cards[0]]
-                best = min(draw_options, key=lambda c: c.value())
+                # Computer draw options
+                top = last_discard_group[-1] if last_discard_group else None
+                bottom = last_discard_group[0] if last_discard_group else None
+                deck_card = deck.draw()[0] if len(deck) > 0 else None
+                options = [c for c in [top, bottom, deck_card] if c]
+                best = min(options, key=lambda c: c.value())
                 if best in discard_pile:
                     discard_pile.remove(best)
-                else:
-                    deck.draw()
                 computer.draw_card([best])
+
+                # Update prev_discard_group AFTER computer finishes full turn
+                prev_discard_group = move[:]
 
             turn += 1
 
@@ -137,7 +141,7 @@ def main():
             print(f"{p.name}: {p.score} pts | Win streak: {p.wins_in_a_row}")
 
     winner = min(players, key=lambda p: p.score)
-    print(f"\n Game over! {winner.name} wins with {winner.score} points! ")
+    print(f"\n Game over! {winner.name} wins with {winner.score} points!")
 
 if __name__ == "__main__":
     main()
