@@ -10,14 +10,17 @@ class Deck:
         self._build()
 
     def _build(self):
+        # Creates a new full deck of cards
         self.cards = [Card(rank, suit) for suit in self.SUITS for rank in self.RANKS]
         if self.include_jokers:
             self.cards += [Card(None, None, is_joker=True) for _ in range(2)]
 
     def shuffle(self):
+        # Shuffles the deck
         random.shuffle(self.cards)
 
     def draw(self, n: int = 1):
+        # Draw 'n' cards from the top of the deck
         if n > len(self.cards):
             raise ValueError("Not enough cards to draw")
         drawn, self.cards = self.cards[:n], self.cards[n:]
