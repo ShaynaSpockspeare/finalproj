@@ -4,26 +4,31 @@ from score import update_scores
 from game import get_computer_move, is_valid_set, is_valid_straight
  
 def print_hand(player):
+    # This function prints the player's hand and its total value
     print(f"\n{player.name}'s hand:")
     for i, card in enumerate(player.hand):
         print(f"  {i}: {card}")
     print(f"Total hand value: {player.hand_value()}")
  
 def parse_indexes(index_str):
+    # This turns the input string into a list of integers
     try:
         return [int(i.strip()) for i in index_str.split()]
     except ValueError:
         return []
  
 def is_valid_play(cards):
+    # Just an edge case if the user messes up or tries to cheat
     return is_valid_set(cards) or is_valid_straight(cards)
  
 def main():
+    # Give the player a name and stuff so it can be cutesy
     user_name = input("Enter your name: ").strip() or "You"
     user = Player(user_name)
     computer = Player("Computer")
     players = [user, computer]
- 
+
+    # The main while loop for the game, it keeps going until one player surpasses 100
     while all(p.score < 100 for p in players):
         deck = Deck(include_jokers=True)
         deck.shuffle()
@@ -32,12 +37,14 @@ def main():
         for p in players:
             p.reset_hand()
             p.draw_card(deck.draw(5))
- 
+
+        # Draw a card from the deck to start the discard pile, I wanted to have the option to take from discard immediately but couldn't figure it out so this was easier
         discard_pile.extend(deck.draw(1))
         turn = 0
         prev_discard_group = []
  
         while True:
+            # Keep track of whose turn it is
             current = players[turn % 2]
             opponent = players[(turn + 1) % 2]
             last_discard_group = prev_discard_group[:]
@@ -49,6 +56,7 @@ def main():
                 print_hand(user)
  
                 user_value = user.hand_value()
+                # Yaniv and Assaf call logic!
                 if user_value <= 7:
                     call = input("Call Yaniv? (y/n): ").strip().lower()
                     if call == 'y':
@@ -62,6 +70,7 @@ def main():
                 while True:
                     move_input = input("Enter card index(es) to discard (space-separated): ").strip()
                     indexes = parse_indexes(move_input)
+                    # Check if the indexes are valid
                     if all(0 <= i < len(user.hand) for i in indexes):
                         move = [user.hand[i] for i in indexes]
                         if is_valid_play(move):
@@ -73,11 +82,12 @@ def main():
                             print("Invalid set/straight. Try again.")
                     else:
                         print("Invalid indexes. Try again.")
- 
+
+                # Remove the selected cards from the user's hand
                 pending_discard = move[:]
                 user.remove_cards(pending_discard)
  
-                # Drawing logic happens before modifying discard_pile
+                # Drawing logic happens before modifying discard pile so that user takes opponent's last card not their own
                 if len(last_discard_group) == 1:
                     draw_input = input("Draw from (d)eck or (p)ile? ").strip().lower()
                     if draw_input == 'p':
@@ -109,7 +119,7 @@ def main():
                 pending_discard = move[:]
                 computer.remove_cards(pending_discard)
  
-                # Draw logic before discarding
+                # Draw logic before discarding (essentially same as user)
                 top = last_discard_group[-1] if last_discard_group else None
                 bottom = last_discard_group[0] if last_discard_group else None
                 deck_card = deck.draw()[0] if len(deck) > 0 else None
