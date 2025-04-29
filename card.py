@@ -6,8 +6,10 @@ class Card:
 
     def value(self):
         if self.is_joker:
+            # The joker is a wild card, so it can be used to replace anything, so it is zero points
             return 0
         if self.rank in ['J', 'Q', 'K']:
+            # Jack, Queen, King are worth 10 points
             return 10
         if self.rank == 'A':
             return 1
