@@ -1,5 +1,5 @@
 def is_valid_set(cards):
-    #Checks if a group of cards forms a valid set (same rank, minimum 3 cards)
+    # Checks if a group of cards forms a valid set (same rank, minimum 2 cards,jacks queens kings and 10s count separately despite having same value)
     if len(cards) < 2:
         return False
     non_jokers = [card for card in cards if not card.is_joker]
@@ -44,6 +44,7 @@ def is_valid_straight(cards):
 
 
 def card_value_for_straight(card):
+    # For straights since the values are the same but the order must be the same as in a standard deck
     if card.rank == 'A': return 1
     if card.rank == 'J': return 11
     if card.rank == 'Q': return 12
@@ -54,6 +55,7 @@ def card_value_for_straight(card):
 from itertools import combinations
 
 def get_computer_move(hand):
+    # This function determines the best move for the computer (either dropping the highest value card or forming a set/straight)
     best_move = None
     best_score = float('inf')
 
@@ -78,4 +80,5 @@ def get_computer_move(hand):
     if best_move:
         return list(best_move)
     else:
+        # If no valid set or straight is found, the computer should drop the highest value card. Lambda is used to get the value of the card
         return [max(hand, key=lambda c: c.value())]
