@@ -1,6 +1,3 @@
-Compile Steps: 
-python3 main.py
-
 Game rules!
 Overall, the game is composed of several rounds, with points from each round being added up for a total score. The goal is to have the lowest possible score, as a player loses after surpassing 100 total points.
 
@@ -12,3 +9,9 @@ The player has 3 options. They can either discard one card, make a set, or a str
 
 Scoring:
 After each round, the losing player's score gets added to their total score count. In the case of an Assaf, the loser has the number of points in-hand +20 added to their total score. If a player hits exactly 50 points, they go back to 0 points. If someone hits exactly 100, they go down to 51. If somebody wins 3 times in a row, they lose 5 points.
+
+Sources:   
+[Card Ascii Art](https://stackoverflow.com/questions/69946172/how-can-i-print-my-ascii-cards-side-by-side)
+
+Compile Steps: 
+python3 main.py

@@ -155,6 +155,7 @@ def main():
                     else:
                         print("\n>>> YANIV SUCCESSFUL. You lose this round. <<<")
                     update_scores(players, 1, assaf)
+                    # Adds a small delay between the end of a round to show a clear winner
                     time.sleep(2)
                     break
 

@@ -1,8 +1,6 @@
-# ascii_card.py
-
 def ascii_version_of_card(*cards, return_string=True):
     suits_name = ['S', 'D', 'H', 'C', 'X']
-    suits_symbols = ['♠', '♦', '♥', '♣', 'X']  # 'X' used for Joker
+    suits_symbols = ['♠', '♦', '♥', '♣', 'X']  # 'X' used for Joker to differentiate between a Jack
 
     lines = [[] for _ in range(9)]
 
@@ -12,7 +10,7 @@ def ascii_version_of_card(*cards, return_string=True):
 
         if rank is None:
             r = 'J'          # show Joker rank as 'J'
-            suit = 'X'       # plain, fixed-width Joker symbol
+            suit = 'X'     
             space = ' '
         else:
             if rank == '10':
